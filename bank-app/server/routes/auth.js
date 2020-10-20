@@ -11,14 +11,10 @@ const {
 const Router = express.Router();
 
 Router.post('/signup', async (req, res) => {
-  let maVar = "0"
   try {
-    maVar = "1"
-    const { first_name, last_name, email, password } = req.body;
+    const { user_name, password } = req.body;
     const validFieldsToUpdate = [
-      'first_name',
-      'last_name',
-      'email',
+      'user_name',
       'password'
     ];
     const receivedFields = Object.keys(req.body);
@@ -27,46 +23,42 @@ Router.post('/signup', async (req, res) => {
       receivedFields,
       validFieldsToUpdate
     );
-    maVar = "2"
     if (isInvalidFieldProvided) {
       return res.status(400).send({
         signup_error: 'Invalid field.'
       });
     }
-    maVar = "3"
     const result = await pool.query(
-      'select count(*) as count from bank_user where email=$1',
-      [email]
+      'select count(*) as count from bank_user where user_name=$1',
+      [user_name]
     );
-    maVar = "4"
     const count = result.rows[0].count;
     if (count > 0) {
       return res.status(400).send({
-        signup_error: 'User with this email address already exists.'
+        signup_error: 'User with this user name already exists.'
       });
     }
-    maVar = "5"
     const hashedPassword = await bcrypt.hash(password, 8);
     await pool.query(
-      'insert into bank_user(first_name, last_name, email, password) values($1,$2,$3,$4)',
-      [first_name, last_name, email, hashedPassword]
+      'insert into bank_user(user_name, password) values($1,$2)',
+      [user_name, hashedPassword]
     );
     res.status(201).send();
     
   } catch (error) {
     res.status(400).send({
-      signup_error: 'Error while signing up..Try again later.'+maVar
+      signup_error: 'Error while signing up..Try again later.'
     });
   }
 });
 
 Router.post('/signin', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await validateUser(email, password);
+    const { user_name, password } = req.body;
+    const user = await validateUser(user_name, password);
     if (!user) {
       res.status(400).send({
-        sigin_error: 'Email/password does not match.'
+        sigin_error: 'User name/password does not match.'
       });
     }
     const token = await generateAuthToken(user);
@@ -83,7 +75,7 @@ Router.post('/signin', async (req, res) => {
     res.send(user);
   } catch (error) {
     res.status(400).send({
-      signin_error: 'Email/password does not match.'
+      signin_error: 'User name/password does not match.'
     });
   }
 });
