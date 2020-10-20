@@ -1,8 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Form, Button } from 'react-bootstrap';
+import { initiateLogin } from '../actions/auth';
 import { validateFields } from '../utils/common';
 import { Link } from 'react-router-dom';
+import _ from 'lodash';
+import { resetErrors } from '../actions/errors';
 
 class Login extends React.Component {
   state = {
@@ -11,7 +14,17 @@ class Login extends React.Component {
     errorMsg:{signin_error:''} 
   };
 
-  handleLogin = (event : React.FormEvent<EventTarget>) => {
+  componentDidUpdate(prevProps) {
+    if (!_.isEqual(prevProps.errors, this.props.errors)) {
+      this.setState({ errorMsg: this.props.errors });
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.dispatch(resetErrors());
+  }
+
+  handleLogin = (event) => {
     event.preventDefault();
     const { userName, password } = this.state;
     const fieldsToValidate = [{ userName }, { password }];
@@ -30,10 +43,11 @@ class Login extends React.Component {
         }
       }); 
       // login successful
+      this.props.dispatch(initiateLogin(userName, password));
     }
   };
 
-  handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  handleInputChange = (event) => {
     const { name, value } = event.target;
 
     this.setState({
@@ -86,4 +100,8 @@ class Login extends React.Component {
   }
 }
 
-export default connect()(Login);
+//export default connect()(Login);
+
+const mapStateToProps = (state) => ({
+  errors: state.errors
+});export default connect(mapStateToProps)(Login);

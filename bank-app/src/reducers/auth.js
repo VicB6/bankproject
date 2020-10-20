@@ -1,6 +1,6 @@
 import { SIGN_IN, SIGN_OUT } from '../utils/constants';
 
-function authReducer(state = {}, action:{type:string,user:""}){
+function authReducer(state = {}, action){
   switch (action.type) {
     case SIGN_IN:
       return action.user;

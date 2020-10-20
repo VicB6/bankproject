@@ -4,6 +4,8 @@ import { Form, Button } from 'react-bootstrap';
 import { registerNewUser } from '../actions/auth';
 import { validateFields } from '../utils/common';
 import { Link } from 'react-router-dom';
+import _ from 'lodash';
+import { resetErrors } from '../actions/errors';
 
 
 class Register extends React.Component {
@@ -16,7 +18,17 @@ class Register extends React.Component {
     isSubmitted: false
   };
 
-  registerUser = (event:React.FormEvent<EventTarget>) => {
+  componentDidUpdate(prevProps) {
+    if (!_.isEqual(prevProps.errors, this.props.errors)) {
+      this.setState({ errorMsg: this.props.errors });
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.dispatch(resetErrors());
+  }
+
+  registerUser = (event) => {
     event.preventDefault();
     const { userName, password, cpassword } = this.state;
 
@@ -42,8 +54,8 @@ class Register extends React.Component {
         });
       } else {
         this.setState({ isSubmitted: true });
-        this.props
         let user_name = userName;
+        this.props
         .dispatch(registerNewUser({ user_name, password }))
         .then((response) => {
           if (response.success) {
@@ -57,7 +69,7 @@ class Register extends React.Component {
     }
   };
 
-  handleInputChange = (event:React.ChangeEvent<HTMLInputElement>) => {
+  handleInputChange = (event) => {
     const { name, value } = event.target;
     this.setState({
       [name]: value
@@ -122,4 +134,10 @@ class Register extends React.Component {
   }
 }
 
-export default connect()(Register);
+//export default connect()(Register);
+
+const mapStateToProps = (state) => ({
+  errors: state.errors
+});
+
+export default connect(mapStateToProps)(Register);

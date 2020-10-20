@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import AuthenticationService from '../services/authentication-service';
   
-const PrivateRoute = ({ component: Component, ...rest }: any) => (
+const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route {...rest} render={(props) => {
     const isAuthenticated = AuthenticationService.isAuthenticated;
     if (!isAuthenticated) {    

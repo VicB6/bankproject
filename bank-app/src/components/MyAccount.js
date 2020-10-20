@@ -7,9 +7,6 @@ import {searchForexRate} from "../services/searchForexRate"
 
 import { useForm } from "react-hook-form";
 
-type curencySymbol = {
-  name: string;
-};
 
 export function MyAccount(){
 
@@ -19,15 +16,15 @@ export function MyAccount(){
         getForexRatesApi().then((res) => setForexRates(res));
     },[]);
     console.log(forexRates)
-    const parsedForexRates : [string[],unknown[]] = parsingForexApiAnswer(forexRates)
+    const parsedForexRates = parsingForexApiAnswer(forexRates)
 
     let currencies = Array.from(parsedForexRates[0])
     currencies = currencies.sort()
 
     //Currency Form
-    const { register, handleSubmit } = useForm<curencySymbol>();
+    const { register, handleSubmit } = useForm();
     const [targetCurrency, setTargetCurrency] = useState("AUD");
-    const onSubmit = (data:curencySymbol) => setTargetCurrency(data["name"]);
+    const onSubmit = (data) => setTargetCurrency(data["name"]);
 
     return (<p>
         <h1>Welcome to your account</h1>

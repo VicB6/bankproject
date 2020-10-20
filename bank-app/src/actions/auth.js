@@ -1,17 +1,15 @@
 import { SIGN_IN, BASE_API_URL } from '../utils/constants';
 import axios from 'axios';
+import { getErrors } from './errors';
+import { history } from '../router/AppRouter';
 
-type userType = {user_name:string;
-                    password:string};
-type userTypeToken = {userid:string,user_name:string,token:string};
-
-export const signIn = (user:userType) => ({
+export const signIn = (user) => ({
   type: SIGN_IN,
   user
 });
 
-export const initiateLogin = (user_name:string, password:string) => {
-  return async (dispatch:typeof signIn) => {
+export const initiateLogin = (user_name, password) => {
+  return async (dispatch) => {
     try {
       const result = await axios.post(`${BASE_API_URL}/signin`, {
         user_name,
@@ -20,19 +18,22 @@ export const initiateLogin = (user_name:string, password:string) => {
       const user = result.data;
       localStorage.setItem('user_token', user.token);
       dispatch(signIn(user));
+      history.push('/profile');
     } catch (error) {
       console.log('error');
+      error.response && dispatch(getErrors(error.response.data));
     }
   };
 };
 
-export const registerNewUser = (data:userType) => {
+export const registerNewUser = (data) => {
   return async (dispatch) => {
     try {
       await axios.post(`${BASE_API_URL}/signup`, data);
       return { success: true };
     } catch (error) {
       console.log('error', error);
+      error.response && dispatch(getErrors(error.response.data));
       return { success: false };
     }
   };
